@@ -1,0 +1,11 @@
+.giphy-card {
+    float: left;
+    margin: 10px;
+    border: solid;
+    border-color: grey;
+    background-color: rgba(255, 145, 0, 0.815);
+}
+
+p {
+    text-align: center;
+}

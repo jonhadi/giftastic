@@ -1,5 +1,5 @@
 var topics = ["Batman", "Superman", "Hulk", "Wolverine"]
-var counter = 0;
+var arrayPlayPause = [];
 
 renderButtons();
 
@@ -19,10 +19,13 @@ $("#add-superhero").on("click", function(event) {
     renderButtons();
 });
 
+//printing gif cards
 function searchGiphy(index) {
+    var apiKey = "2iT8zLjvo55YojtFlWZXXbod6roKGRAi";
+    var gifsSpawned = 10;
     var hero = topics[index];
     var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
-        hero + "&api_key=2iT8zLjvo55YojtFlWZXXbod6roKGRAi&limit=10";
+        hero + "&api_key=" + apiKey + "&limit=" + gifsSpawned;
 
     $.ajax({
     url: queryURL,
@@ -31,18 +34,44 @@ function searchGiphy(index) {
     console.log(response);
     var results = response.data;
 
+    //empty gifs and array of images
+    $('#giphy-here').empty();
+    arrayPlayPause = [];
+
     for (var i = 0; i < results.length; i++) {
-        var heroDiv = $("<div>");
-        var p = $('<p>');
-            p.html(results[i].rating);
-        var heroImage = $('<img id=giphy' + counter + '>' );
-            heroImage.attr("src", results[i].images.fixed_height_still.url);
-            heroDiv.append(p);
+        // save paused and play images
+        arrayPlayPause[i] = {
+            pause : results[i].images.fixed_height_still.url,
+            play : results[i].images.fixed_height.url
+        }
+
+
+        var heroDiv = $("<div class='giphy-card'>");
+        var title = $('<p>');
+            title.html("Title: " + results[i].title);
+            heroDiv.append(title);
+        var heroImage = $("<img class='giphy-img' id='giphy" + i + "' gif-index=" + i + " setting=pause>" );
+            heroImage.attr("src", arrayPlayPause[i].pause);
             heroDiv.append(heroImage);
-
+        var rating = $('<p>');
+            rating.html("Rating: " + results[i].rating);
+            heroDiv.append(rating);
         $('#giphy-here').prepend(heroDiv);
-        counter++;
-    }
 
+    }
     });
 }
+
+//listening for clicks on generated IDs
+$(document.body).on("click", ".giphy-img", function() {
+    console.log(this.id);
+    var index = $(this).attr("gif-index");
+    var currentSetting = $(this).attr("setting");
+    if (currentSetting === "pause") {
+        $('#'+this.id).attr("src", arrayPlayPause[index].play);
+        $('#'+this.id).attr("setting", "play");
+    } else {
+        $('#'+this.id).attr("src", arrayPlayPause[index].pause);
+        $('#'+this.id).attr("setting", "pause");
+    }
+});
